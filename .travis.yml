@@ -13,21 +13,22 @@ python:
 
 services:
   - mysql
+  - docker
 
 install:
   - pip install flake8==3.3.0
   - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
   - sudo rm /etc/apt/sources.list.d/docker.list
-  - sudo apt-get purge -y mysql-common mysql-server mysql-client
-  - nvm install v7.10.0
-  - wget https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py
-  - sudo python install.py --develop --user travis --without-bench-setup
-  - sudo pip install -e ~/bench
+  # - sudo apt-get purge -y mysql-common mysql-server mysql-client
+  # - nvm install v7.10.0
+  # - wget https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py
+  # - sudo python install.py --develop --user travis --without-bench-setup
+  # - sudo pip install -e ~/bench
 
-  - rm $TRAVIS_BUILD_DIR/.git/shallow
-  - bash $TRAVIS_BUILD_DIR/travis/bench_init.sh
-  - cp -r $TRAVIS_BUILD_DIR/test_sites/test_site ~/frappe-bench/sites/
-
+  # - rm $TRAVIS_BUILD_DIR/.git/shallow
+  # - bash $TRAVIS_BUILD_DIR/travis/bench_init.sh
+  - docker pull vishaljsesh/erpnext-travis:version1
+  - docker run -d -it --name erpnext-travis --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/home/frappe/erpnext vishaljsesh/erpnext-travis:version1
 before_script:
   - wget http://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
@@ -38,6 +39,10 @@ before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - sleep 3
+  - docker exec -it erpnext-travis bash
+  - service mysql restart 
+  - su frappe
+  - cd && source ~/.profile
   - mysql -u root -ptravis -e 'create database test_frappe'
   - echo "USE mysql;\nCREATE USER 'test_frappe'@'localhost' IDENTIFIED BY 'test_frappe';\nFLUSH PRIVILEGES;\n" | mysql -u root -ptravis
   - echo "USE mysql;\nGRANT ALL PRIVILEGES ON \`test_frappe\`.* TO 'test_frappe'@'localhost';\n" | mysql -u root -ptravis
