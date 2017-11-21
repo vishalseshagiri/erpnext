@@ -29,7 +29,8 @@ install:
   # - bash $TRAVIS_BUILD_DIR/travis/bench_init.sh
   - docker --version
   - docker pull vishaljsesh/erpnext-travis
-  - docker run -d -it --network=host --name erpnext-travis -p 8000:8000 -p 9000:9000 -p 6787:6787 --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/home/frappe/erpnext vishaljsesh/erpnext-travis:latest
+  # - docker run -d -it --network=host --name erpnext-travis -p 8000:8000 -p 9000:9000 -p 6787:6787 --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/home/frappe/erpnext vishaljsesh/erpnext-travis:latest
+  - docker run -d -it --network=host --name erpnext-travis -p 8000:8000 -p 9000:9000 -p 6787:6787 -v $TRAVIS_BUILD_DIR:/home/frappe/erpnext vishaljsesh/erpnext-travis:latest
 before_script:
   - wget http://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
