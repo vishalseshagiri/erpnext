@@ -27,8 +27,8 @@ install:
 
   # - rm $TRAVIS_BUILD_DIR/.git/shallow
   # - bash $TRAVIS_BUILD_DIR/travis/bench_init.sh
-  - docker pull vishaljsesh/erpnext-travis:version1
-  - docker run -d -it --name erpnext-travis --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/home/frappe/erpnext vishaljsesh/erpnext-travis:version1
+  - docker pull vishaljsesh/erpnext-travis
+  - docker run -d -it --network=host --name erpnext-travis -p 8000:8000 -p 9000:9000 -p 6787:6787 --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/home/frappe/erpnext vishaljsesh/erpnext-travis:latest
 before_script:
   - wget http://chromedriver.storage.googleapis.com/2.33/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
@@ -43,14 +43,21 @@ before_script:
   - service mysql restart 
   - su frappe
   - cd && source ~/.profile
-  - mysql -u root -ptravis -e 'create database test_frappe'
-  - echo "USE mysql;\nCREATE USER 'test_frappe'@'localhost' IDENTIFIED BY 'test_frappe';\nFLUSH PRIVILEGES;\n" | mysql -u root -ptravis
-  - echo "USE mysql;\nGRANT ALL PRIVILEGES ON \`test_frappe\`.* TO 'test_frappe'@'localhost';\n" | mysql -u root -ptravis
-
-  - cd ~/frappe-bench
-  - bench get-app erpnext $TRAVIS_BUILD_DIR
-  - bench use test_site
-  - bench reinstall --yes
+  # - mysql -u root -proot -e 'create database test_frappe'
+  # - echo "USE mysql;\nCREATE USER 'test_frappe'@'localhost' IDENTIFIED BY 'test_frappe';\nFLUSH PRIVILEGES;\n" | mysql -u root -proot
+  # - echo "USE mysql;\nGRANT ALL PRIVILEGES ON \`test_frappe\`.* TO 'test_frappe'@'localhost';\n" | mysql -u root -proot
+  - cd ~/erpnext && PR_BRANCH_HEAD=$(git rev-parse HEAD)
+  - cd ~/frappe-bench/apps/erpnext
+  - git remote add test ~/erpnext/
+  - git fetch --unshallow test
+  - git checkout -b test -t test/$TRAVIS_BRANCH
+  - CURRENT_BRANCH_HEAD=$(git rev-parse HEAD) 
+  - set -e
+  - diff <( echo "$PR_BRANCH_HEAD" ) <( echo "$CURRENT_BRANCH_HEAD" )
+  # - bench get-app erpnext $TRAVIS_BUILD_DIR
+  - cd ~/frappe-bench && bench use test_site
+  # - bench reinstall --yes
+  - bench migrate
   - bench build
   - bench scheduler disable
   - bench start &
