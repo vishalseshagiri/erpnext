@@ -57,7 +57,7 @@ before_script:
   # - bench get-app erpnext $TRAVIS_BUILD_DIR
   - docker exec -itu frappe erpnext-travis bash -c "cd ~/frappe-bench && bench use test_site"
   # - bench reinstall --yes
-  - docker exec -itu frappe erpnext-travis bash -c "cd ~/frappe-bench && bench migrate"
+  - docker exec -itu frappe erpnext-travis bash -c "cd ~/frappe-bench && bench reinstall --yes && bench migrate"
   - docker exec -itu frappe erpnext-travis bash -c "cd ~/frappe-bench && bench build"
   - docker exec -itu frappe erpnext-travis bash -c "cd ~/frappe-bench && bench scheduler disable"
   # - docker exec -itu frappe erpnext-travis bash -c "cd ~/frappe-bench && bench start &"
