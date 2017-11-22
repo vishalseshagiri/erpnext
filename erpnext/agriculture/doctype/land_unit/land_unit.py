@@ -22,6 +22,10 @@ class LandUnit(NestedSet):
 	nsm_parent_field = 'parent_land_unit'
 
 	def on_trash(self):
+		"""
+		docstring here
+			:param self: 
+		"""
 		ancestors = self.get_ancestors()
 		for ancestor in ancestors:
 			ancestor_doc = frappe.get_doc('Land Unit', ancestor)	
@@ -33,6 +37,10 @@ class LandUnit(NestedSet):
 			ancestor_doc.db_set(fieldname='area', value=ancestor_doc.get('area')-self.get('area'),commit=True)
 
 	def validate(self):
+		"""
+		docstring here
+			:param self: 
+		"""
 		if not self.is_new():
 			if not self.get('location'):
 				features = ''
@@ -70,6 +78,11 @@ class LandUnit(NestedSet):
 						self.get('area_difference'),commit=True)
 
 	def set_location_value(self, features):
+		"""
+		docstring here
+			:param self: 
+			:param features: 
+		"""
 		if not self.get('location'):
 			self.location = '{"type":"FeatureCollection","features":[]}'
 		location = json.loads(self.location)
@@ -77,10 +90,18 @@ class LandUnit(NestedSet):
 		self.db_set(fieldname='location', value=json.dumps(location), commit=True)
 
 	def on_update(self):
+		"""
+		docstring here
+			:param self: 
+		"""
 		super(LandUnit, self).on_update()
 		self.validate_one_root()
 
 	def add_child_property(self):
+		"""
+		docstring here
+			:param self: 
+		"""
 		location = self.get('location')
 		if location:
 			features = json.loads(location).get('features')	
@@ -94,6 +115,11 @@ class LandUnit(NestedSet):
 		return []
 
 	def feature_seperator(self, child_feature=None):
+		"""
+		docstring here
+			:param self: 
+			:param child_feature=None: 
+		"""
 		doc = self 
 		child_features = []
 		non_child_features = []
@@ -112,6 +138,10 @@ class LandUnit(NestedSet):
 
 
 def compute_area(features):                                
+	"""
+	docstring here
+		:param features: 
+	"""
 	layer_area = 0
 	for feature in features:
 		if feature.get('geometry').get('type') == 'Polygon':
@@ -121,9 +151,17 @@ def compute_area(features):
 	return layer_area
 
 def rad(angle_in_degrees):
+	"""
+	docstring here
+		:param angle_in_degrees: 
+	"""
 	return angle_in_degrees*math.pi/180
 
 def polygon_area(coords):
+	"""
+	docstring here
+		:param coords: 
+	"""
 	area = 0
 	if coords and len(coords) > 0:
 		area += math.fabs(ring_area(coords[0]));
@@ -132,6 +170,10 @@ def polygon_area(coords):
 	return area;
 	
 def ring_area(coords):
+	"""
+	docstring here
+		:param coords: 
+	"""
 	p1 = 0
 	p2 = 0
 	p3 = 0
